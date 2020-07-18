@@ -106,11 +106,27 @@ HRESULT Core::Intialize()
 	GIManager->RayBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, RayBufferName.size(), RayBufferName.c_str());
 	GIManager->RayResultMap->Tex->SetPrivateData(WKPDID_D3DDebugObjectName, CSSampleName.size(), CSSampleName.c_str());
 	GIManager->GISettingBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, GISettingName.size(), GISettingName.c_str());
+	srand((unsigned)time(NULL));
+	for (int i = 0; i < MAX_PIXLIGHTS; i++)
+	{
+		XMVECTOR Position = XMVectorSet((rand() %50) - 25, rand() % 30, (rand() % 50)-25, 1.0f);
+		XMVECTOR Color = XMVector3Normalize(XMVectorSet(rand(), rand(), rand(), 1.0f));
+ 		AddLight(Light({ Position }, { 0.0f,0.0f,0.0f,1.0f }, Color, 1.0f, 10.0f));
+
+	}
+
+	//AddLight(Light({ 0.0f,5.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, {1.0f,0.0f,0.0f,0.0f}, 4.0f, 10.0f));
+	//AddLight(Light({ 5.0f,7.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,1.0f,0.0f,0.0f }, 4.0f, 10.0f));
+	//AddLight(Light({ 7.0f,5.0f,5.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,0.0f,1.0f,0.0f }, 4.0f, 10.0f));
+	//AddLight(Light({0.0f,5.0f,7.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,0.0f }, 0.5f, 10.0f));
 	
-	AddLight(Light({ 0.0f,70.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, {1.0f,0.0f,0.0f,0.0f}, 4.0f, 200.0f));
-	AddLight(Light({ 25.0f,0.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,1.0f,0.0f,0.0f }, 4.0f, 200.0f));
-	AddLight(Light({ 0.0f,0.0f,25.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,0.0f,1.0f,0.0f }, 4.0f, 200.0f));
-	AddLight(Light({25.0f,25.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,0.0f }, 0.5f, 200.0f));
+	//AddLight(Light({ 25.0f,5.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 1.0f,0.0f,0.0f,0.0f }, 4.0f, 10.0f));
+	//AddLight(Light({ 25.0f,7.0f,0.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,1.0f,0.0f,0.0f }, 4.0f, 10.0f));
+	//AddLight(Light({ 27.0f,5.0f,25.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 0.0f,0.0f,1.0f,0.0f }, 4.0f, 10.0f));
+	//AddLight(Light({ 0.0f,5.0f,27.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,0.0f }, 0.5f, 10.0f));
+
+	
+	
 	//AddLight(Light({ 0.0f,50.0f,50.0,1.0f }, { 0.0f,0.0f,0.0f,1.0f }, { 1.0f,1.0f,1.0f,0.0f }, 0.5f, 0.05f));
 
 	WaveFrontReader<Index> SceneMesh;
@@ -119,6 +135,7 @@ HRESULT Core::Intialize()
 	HRESULT Result;
 	//SponzaModel->ModelMesh->Indices.reserve()
 	Result = SceneMesh.Load(L"C:\\Users\\pencu\\source\\repos\\TileShading-Improved\\Resources\\Models\\Sponza\\sponza.obj");
+	
 	assert(Result == S_OK);
 	*SponzaModel = SceneMesh;
 
@@ -166,6 +183,9 @@ void Core::Update(float Delta)
 
 	ImGui::Checkbox("Visualize Tile", &TileOptions.VisualizeTiles);
 
+	XMVECTOR Pos = MainCam->GetCameraPosition();
+
+	ImGui::Text("(%f, %f, %f)", Pos.m128_f32[0], Pos.m128_f32[1], Pos.m128_f32[2]);
 	ImGui::End();
 	ImGui::EndFrame();
 
@@ -343,7 +363,7 @@ void Core::AddLight(Light NewLight)
 	//NewLight.Position.w = 1.0f;
 	ViewPosition = XMLoadFloat4(&NewLight.Position);
 	
-	XMStoreFloat4(&NewLight.Position, XMVector3TransformCoord(ViewPosition, MainCam->GetView()));
+	XMStoreFloat4(&NewLight.Forward, XMVector3TransformCoord(ViewPosition, MainCam->GetView()));
 
 	SceneLights.push_back(NewLight);
 

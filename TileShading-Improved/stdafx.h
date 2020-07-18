@@ -28,6 +28,7 @@
 #include<fstream>
 #include<sstream>
 #include<atlbase.h>
+#include<time.h>
 
 #include<vector>
 #include<map>
