@@ -222,4 +222,7 @@
     <None Include="RenderScreen.hlsl" />
     <None Include="ScreenTexture.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="ComputeShadows.hlsl" />
+  </ItemGroup>
 </Project>
